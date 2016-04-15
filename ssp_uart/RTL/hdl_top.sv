@@ -33,17 +33,26 @@ module hdl_top;
    // ----------------------------------------------------------------
    // -- Component Instantiations
    // ----------------------------------------------------------------
+   ssp_uart_if ssp_uart_cfg_if_i(.clk(clk));
 
-   // ----------------------------------------------------------------
-   // -- Clock
-   // ----------------------------------------------------------------
-   clock_driver u_clock(
-     .clk(clk),
-     .rst(rst));
+   assign Rst 	 	= ssp_uart_cfg_if_i.Rst_sig;                    
+   assign Clk		= ssp_uart_cfg_if_i.Clk_sig;                    
+   assign SSP_SSEL	= ssp_uart_cfg_if_i.SSP_SSEL_sig;               
+   assign SSP_SCK	= ssp_uart_cfg_if_i.SSP_SCK_sig;               
+   assign [2:0] SSP_RA	= ssp_uart_cfg_if_i.SSP_RA_sig;         
+   assign SSP_WnR	= ssp_uart_cfg_if_i.SSP_WnR_sig;                
+   assign SSP_En	= ssp_uart_cfg_if_i.SSP_En_sig;             
+   assign SSP_EOC	= ssp_uart_cfg_if_i.SSP_EOC_sig;             
+   assign [11:0] SSP_DI	= ssp_uart_cfg_if_i.SSP_DI_sig;          
+   assign RxD_232	= ssp_uart_cfg_if_i.RxD_232_sig;                
+   assign xCTS		= ssp_uart_cfg_if_i.xCTS_sig;                   
+   assign RxD_485	= ssp_uart_cfg_if_i.RxD_485_sig;                
+
 
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)
    // ----------------------------------------------------------------
+
    SSP_UART ssp_uart(
     .Rst(Rst),			// System Reset
     .Clk(Clk),			// System Clock
@@ -65,27 +74,10 @@ module hdl_top;
     .IRQ(IRQ),			// Interrupt Request
     .TxIdle(TxIdle),
     .RxIdle(RxIdle)
-//tmp     .clk(clk),
-//tmp     .rst(rst)
 );
 
-
-   pcounter_if pcounter_cfg_if_i(.clk(clk));
-
-   // Input to the design
-   assign dut.cfg_enable_sig = pcounter_cfg_if_i.cfg_enable_sig;
-   assign dut.cfg_rd_wr_sig  = pcounter_cfg_if_i.cfg_rd_wr_sig;
-   assign dut.cfg_addr_sig   = pcounter_cfg_if_i.cfg_addr_sig;
-   assign dut.cfg_wdata_sig  = pcounter_cfg_if_i.cfg_wdata_sig;
-
-   // Output from  the design
-
-   //
-   // 
-   // 
-
-   function void get_interface(output virtual pcounter_if pc_vif);
-       pc_vif = pcounter_cfg_if_i;
+   function void get_interface(output virtual ssp_uart_if ssp_uart_vif);
+       ssp_uart_vif = ssp_uart_cfg_if_i;
    endfunction
 
 
