@@ -23,7 +23,7 @@ module tb_top ();
   virtual pcounter_if      pc_vif ;
 
  /**
-   * @brief initialize the pcounter interface
+   * @brief initialize the ssp_uart interface
    *
    * @param none
    * @return void
