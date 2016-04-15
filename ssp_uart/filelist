@@ -1,2 +1,12 @@
-RTL/*
-sim/*
+RTL/DPSFnmCE.v
+RTL/fedet.v
+RTL/hdl_top.sv
+RTL/re1ce.v
+RTL/redet.v
+RTL/ssp_uart_if.sv
+RTL/SSP_UART.v
+RTL/UART_BRG.v
+RTL/UART_INT.v
+RTL/UART_RTO.v
+RTL/UART_RXSM.v
+RTL/UART_TXSM.v

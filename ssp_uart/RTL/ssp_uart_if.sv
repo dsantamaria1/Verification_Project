@@ -17,19 +17,18 @@
  */
 interface ssp_uart_if (input logic clk);
 
-    logic   Rst_sig,                    // System Reset
-    logic   Clk_sig,                    // System Clock
-    logic   SSP_SSEL_sig,               // SSP Slave Select
-    logic   SSP_SCK_sig,                // Synchronous Serial Port Serial Clock
-    logic   [2:0] SSP_RA_sig,           // SSP Register Address
-    logic   SSP_WnR_sig,                // SSP Command
-    logic   SSP_En_sig,                 // SSP Start Data Transfer Phase (Bits 11:0)
-    logic   SSP_EOC_sig,                // SSP End-Of-Cycle (Bit 0)
-    logic   [11:0] SSP_DI_sig,          // SSP Data In
-    logic   RxD_232_sig,                // RS-232 Mode RxD
-    logic   xCTS_sig,                   // RS-232 Mode CTS (Okay-To-Send)
-    logic   RxD_485_sig                // RS-485 Mode RxD
-); 
+    logic   Rst_sig;                    // System Reset
+    logic   Clk_sig;                    // System Clock
+    logic   SSP_SSEL_sig;               // SSP Slave Select
+    logic   SSP_SCK_sig;                // Synchronous Serial Port Serial Clock
+    logic   [2:0] SSP_RA_sig;           // SSP Register Address
+    logic   SSP_WnR_sig;                // SSP Command
+    logic   SSP_En_sig;                 // SSP Start Data Transfer Phase (Bits 11:0)
+    logic   SSP_EOC_sig;                // SSP End-Of-Cycle (Bit 0)
+    logic   [11:0] SSP_DI_sig;          // SSP Data In
+    logic   RxD_232_sig;                // RS-232 Mode RxD
+    logic   xCTS_sig;                   // RS-232 Mode CTS (Okay-To-Send)
+    logic   RxD_485_sig;                // RS-485 Mode RxD
 
 endinterface: ssp_uart_if
 
