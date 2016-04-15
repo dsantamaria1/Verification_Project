@@ -10,3 +10,4 @@ RTL/UART_INT.v
 RTL/UART_RTO.v
 RTL/UART_RXSM.v
 RTL/UART_TXSM.v
+Sim/tb_top.sv
