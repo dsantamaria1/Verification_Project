@@ -18,7 +18,7 @@ module tb_top ();
 
   hdl_top     hdl_top_i();
 
-  config_item   c1; 
+  //config_item   c1; 
   //TODO: change pcounter_if to ssp_if in module and filelist
   virtual ssp_uart_if      ssp_uart_vif ;
 
@@ -43,7 +43,7 @@ module tb_top ();
    */
 
 
-  task drive_transaction(config_item  item); 
+  //dsm_temp task drive_transaction(config_item  item); 
   // sets the enable sig and drives the data
   // and addr values on the interface
   // It resets the enable sig after one clock
@@ -60,7 +60,7 @@ module tb_top ();
   //dsm_temp  pc_vif.cfg_enable_sig = 0;
 
 
-  endtask
+  //dsm_temp endtask
 
  /**
    * @brief checks if the counteroutput is of a given value
@@ -70,17 +70,17 @@ module tb_top ();
    */
 
   function int xcheck_dut (int val);
-    if ($root.tb_top.hdl_top_i.dut.counter_o_sig != val) begin
-      $display("----------------------------------");
-      $display("(%t) Consistency Check Failed", $time());;
-      $display("----------------------------------");
-      $finish();
-    end
-    else
-      $display("----------------------------------");
-      $display("(%t) Consistency Check passed", $time());;
-      $display("----------------------------------");
-      return(0);
+    //dsm_temp if ($root.tb_top.hdl_top_i.dut.counter_o_sig != val) begin
+    //dsm_temp   $display("----------------------------------");
+    //dsm_temp   $display("(%t) Consistency Check Failed", $time());;
+    //dsm_temp   $display("----------------------------------");
+    //dsm_temp   $finish();
+    //dsm_temp end
+    //dsm_temp else
+    //dsm_temp   $display("----------------------------------");
+    //dsm_temp   $display("(%t) Consistency Check passed", $time());;
+    //dsm_temp   $display("----------------------------------");
+    //dsm_temp   return(0);
   endfunction
      
 
