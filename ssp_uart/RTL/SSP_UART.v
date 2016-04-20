@@ -316,8 +316,8 @@ module SSP_UART #(
 
     parameter pTF_Depth = 2,                // Tx FIFO Depth: 2**(TF_Depth + 4)
     parameter pRF_Depth = 2,                // Rx FIFO Depth: 2**(RF_Depth + 4)
-    parameter pTF_Init  = "Src/UART_TF.coe",    // Tx FIFO Memory Initialization
-    parameter pRF_Init  = "Src/UART_RF.coe"     // Rx FIFO Memory Initialization
+    parameter pTF_Init  = "RTL/UART_TF.coe",    // Tx FIFO Memory Initialization
+    parameter pRF_Init  = "RTL/UART_RF.coe"     // Rx FIFO Memory Initialization
 )(
     input   Rst,                    // System Reset
     input   Clk,                    // System Clock

@@ -33,7 +33,7 @@ module hdl_top;
    // ----------------------------------------------------------------
    // -- Component Instantiations
    // ----------------------------------------------------------------
-   ssp_uart_if ssp_uart_cfg_if_i(.clk(clk));
+   ssp_uart_if ssp_uart_cfg_if_i(.clk(Clk));
 
    assign Rst 	 	= ssp_uart_cfg_if_i.Rst_sig;                    
    assign Clk		= ssp_uart_cfg_if_i.Clk_sig;                    

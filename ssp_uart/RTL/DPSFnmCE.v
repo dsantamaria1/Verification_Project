@@ -72,7 +72,7 @@
 module DPSFnmCE #( 
     parameter addr  = 4,                // Sets depth of the FIFO: 2**addr
     parameter width = 16,               // Sets width of the FIFO
-    parameter init  = "DPSFnmRAM.coe"   // Initializes FIFO memory
+    parameter init  = "RTL/DPSFnmRAM.coe"   // Initializes FIFO memory
 )(
     input   Rst,
     input   Clk,

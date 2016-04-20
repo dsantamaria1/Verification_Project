@@ -13,8 +13,8 @@
 
 module tb_top ();
 
-  logic clk;
-  logic rst;
+  logic clk = 0;
+  logic rst = 1;
 
   hdl_top     hdl_top_i();
 
@@ -85,6 +85,11 @@ module tb_top ();
      
 
   // TB Top Process
+
+  always begin
+      #10 clk = ~clk;
+  end
+
   initial begin
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
