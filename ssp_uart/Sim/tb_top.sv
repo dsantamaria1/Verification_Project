@@ -15,11 +15,13 @@ module tb_top ();
 
   logic clk = 0;
   logic rst = 1;
+  logic [2:0] ssp_ra = 0;
+  logic ssp_wnr = 0;
+  logic [11:0] ssp_di = 12'h0;
 
   hdl_top     hdl_top_i();
 
   //config_item   c1; 
-  //TODO: change pcounter_if to ssp_if in module and filelist
   virtual ssp_uart_if      ssp_uart_vif ;
 
  /**
@@ -43,7 +45,8 @@ module tb_top ();
    */
 
 
-  //dsm_temp task drive_transaction(config_item  item); 
+  task drive_transaction(logic [2:0] reg_addr, logic [11;0] data, logic WE); 
+  //task drive_transaction(config_item  item); 
   // sets the enable sig and drives the data
   // and addr values on the interface
   // It resets the enable sig after one clock
@@ -58,9 +61,12 @@ module tb_top ();
   //dsm_temp  //dsm_tmp
   //dsm_temp  @(posedge pc_vif.clk_sig);
   //dsm_temp  pc_vif.cfg_enable_sig = 0;
+ 
+    ssp_uart_vif.SSP_WnR_sig = WE;
+    ssp_uart_vif.SSP_DI_sig = data;
+    ssp_uart_vif.SSP_RA_sig = reg_addr;
 
-
-  //dsm_temp endtask
+  endtask
 
  /**
    * @brief checks if the counteroutput is of a given value
@@ -85,16 +91,20 @@ module tb_top ();
      
 
   // TB Top Process
-
+  //connected clk to DUT
   always begin
-      #10 clk = ~clk;
+    #10 clk = ~clk;
+    ssp_uart_vif.Clk_sig = clk;
   end
 
   initial begin
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
     #500; 
- 
+    ssp_ra = 'hC;
+    ssp_di = 'hDED;
+    ssp_wnr = 1'b1;
+    drive_transaction(ssp_ra, ssp_di, ssp_wnr);
     // Fixme: Lab1 -Begin
     //dsm_temp  // Create a new config_item object and assign to variable c1
     //dsm_temp  c1 = new();
