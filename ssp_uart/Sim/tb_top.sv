@@ -101,7 +101,9 @@ module tb_top ();
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
     #500; 
- 
+    ssp_ra = 'hC;
+    ssp_di = 'hDED;
+    ssp_wnr = 1'b1;
     drive_transaction(ssp_ra, ssp_di, ssp_wnr);
     // Fixme: Lab1 -Begin
     //dsm_temp  // Create a new config_item object and assign to variable c1
