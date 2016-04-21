@@ -87,7 +87,8 @@ module tb_top ();
   // TB Top Process
 
   always begin
-      #10 clk = ~clk;
+    #10 clk = ~clk;
+    ssp_uart_vif.Clk_sig = clk;
   end
 
   initial begin
