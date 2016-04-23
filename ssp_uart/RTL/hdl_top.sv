@@ -35,6 +35,7 @@ module hdl_top;
    // ----------------------------------------------------------------
    ssp_uart_if ssp_uart_cfg_if_i(.clk(Clk));
 
+   //inputs
    assign Rst 	 	= ssp_uart_cfg_if_i.Rst_sig;                    
    assign Clk		= ssp_uart_cfg_if_i.Clk_sig;                    
    assign SSP_SSEL	= ssp_uart_cfg_if_i.SSP_SSEL_sig;               
@@ -48,6 +49,14 @@ module hdl_top;
    assign xCTS		= ssp_uart_cfg_if_i.xCTS_sig;                   
    assign RxD_485	= ssp_uart_cfg_if_i.RxD_485_sig;                
 
+   assign ssp_uart_cfg_if_i.SSP_DO_sig	= SSP_DO;
+   assign ssp_uart_cfg_if_i.TxD_232_sig	= TxD_232;
+   assign ssp_uart_cfg_if_i.xRTS_sig	= xRTS;
+   assign ssp_uart_cfg_if_i.TxD_485_sig	= TxD_485;
+   assign ssp_uart_cfg_if_i.xDE_sig	= xDE;
+   assign ssp_uart_cfg_if_i.IRQ_sig	= IRQ;
+   assign ssp_uart_cfg_if_i.TxIdle_sig	= TxIdle;
+   assign ssp_uart_cfg_if_i.RxIdle_sig	= RxIdle;
 
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)

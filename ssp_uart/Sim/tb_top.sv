@@ -18,6 +18,7 @@ module tb_top ();
   logic [2:0] ssp_ra = 0;
   logic ssp_wnr = 0;
   logic [11:0] ssp_di = 12'h0;
+  logic [11:0] ssp_do = 12'h0;
   logic ssp_eoc = 0;
   logic ssp_ssel = 0;
 
@@ -99,12 +100,16 @@ module tb_top ();
     // Call task drive_transaction with config_item c1 as argument
     drive_transaction(c1);
     
-    // read data back and compare
-    if(c1.get_SSP_DO !== 12'hDED) begin // using != instead of !== results in true
-	$display("ERROR!: Data read from UCR is incorrect. Expected = %0h, Actual = 0%h", c1.get_SSP_DO, ssp_di);
+    // read data back and compare (need to wait for 2 negedges for register to latch value);
+    @(negedge ssp_uart_vif.Clk_sig);
+    @(negedge ssp_uart_vif.Clk_sig);
+    
+    ssp_do = c1.get_SSP_DO();
+    if(ssp_do !== ssp_di) begin // using != instead of !== results in true
+	$display("ERROR @ time %0t: Data read from UCR is incorrect. Expected = %0h, Actual = %0h", $time, ssp_di, ssp_do);
     end
     else begin
-	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = 0%h", c1.get_SSP_DO, ssp_di);
+	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = %0h", ssp_di, ssp_do);
     end
     #100; 
      

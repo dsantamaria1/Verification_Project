@@ -49,7 +49,7 @@ class config_item;
    * Initializes all variables to a default value
    */
 
-  function new(ssp_uart_if ssp_uart_vif);
+  function new(virtual ssp_uart_if ssp_uart_vif);
       logic Rst = 1;
       logic Clk = 0;
       logic SSP_SSEL = 0;
@@ -332,7 +332,7 @@ class config_item;
   // function get_SSP_DO();
   //--------------------------------------------------------
   function logic [11:0] get_SSP_DO();
-      return SSP_DO;
+      return ssp_uart_vif.SSP_DO_sig;
   endfunction: get_SSP_DO
   
   
@@ -340,14 +340,14 @@ class config_item;
   // function get_TxD_232();
   //--------------------------------------------------------
   function logic get_TxD_232();
-      return TxD_232;
+      return ssp_uart_vif.TxD_232_sig;
   endfunction: get_TxD_232
   
   //--------------------------------------------------------
   // function get_xRTS();
   //--------------------------------------------------------
   function logic get_xRTS();
-      return xRTS;
+      return ssp_uart_vif.xRTS_sig;
   endfunction: get_xRTS
   
   
@@ -355,7 +355,7 @@ class config_item;
   // function get_TxD_485();
   //--------------------------------------------------------
   function logic get_TxD_485();
-      return TxD_485;
+      return ssp_uart_vif.TxD_485_sig;
   endfunction: get_TxD_485
   
   
@@ -363,7 +363,7 @@ class config_item;
   // function get_xDE();
   //--------------------------------------------------------
   function logic get_xDE();
-      return xDE;
+      return ssp_uart_vif.xDE_sig;
   endfunction: get_xDE
   
   
@@ -371,7 +371,7 @@ class config_item;
   // function get_IRQ();
   //--------------------------------------------------------
   function logic get_IRQ();
-      return IRQ;
+      return ssp_uart_vif.IRQ_sig;
   endfunction: get_IRQ
   
   
@@ -379,7 +379,7 @@ class config_item;
   // function get_TxIdle();
   //--------------------------------------------------------
   function logic get_TxIdle();
-      return TxIdle;
+      return ssp_uart_vif.TxIdle_sig;
   endfunction: get_TxIdle
   
   
@@ -387,7 +387,7 @@ class config_item;
   // function get_RxIdle();
   //--------------------------------------------------------
   function logic get_RxIdle();
-      return RxIdle;
+      return ssp_uart_vif.RxIdle_sig;
   endfunction: get_RxIdle
 
   extern function void print();
