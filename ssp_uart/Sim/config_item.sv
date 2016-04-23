@@ -329,7 +329,7 @@ class config_item;
   //--------------------------------------------------------
   // function get_SSP_DO();
   //--------------------------------------------------------
-  function logic get_SSP_DO();
+  function logic [11:0] get_SSP_DO();
       return SSP_DO;
   endfunction: get_SSP_DO
   

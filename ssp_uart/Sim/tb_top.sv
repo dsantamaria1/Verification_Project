@@ -72,7 +72,7 @@ module tb_top ();
     initialize_ssp_uart_if();
     #0; //initialize reset to 1 at beginning of simulation
     ssp_uart_vif.Rst_sig = rst;
-    #500;
+    #50;
     
     // bring SSP_UART out of reset
     rst = 0;
@@ -98,23 +98,11 @@ module tb_top ();
     c1.print();
     // Call task drive_transaction with config_item c1 as argument
     drive_transaction(c1);
-
-    #500; 
-
-    // Fixme: Lab1 -Begin
-    //dsm_temp  // Create a new config_item object and assign to variable c1
-    //dsm_temp  c1 = new();
-    //dsm_temp  // Set addr to 3 and data to 3 for c1
-    //dsm_temp  c1.set_addr(3'h3);
-    //dsm_temp  c1.set_data(10'h3);
-    //dsm_temp  // Call method print for c1
-    //dsm_temp  c1.print();
-    //dsm_temp  // Call task drive_transaction with config_item c1 as argument
-    //dsm_temp  drive_transaction(c1);
-
-    // Fixme: Lab1 -End
-
-    #500; 
+    
+    // read data back and compare
+    #100; 
+     
+    #100; 
 
     $finish();
 
