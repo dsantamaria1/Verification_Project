@@ -100,6 +100,12 @@ module tb_top ();
     drive_transaction(c1);
     
     // read data back and compare
+    if(c1.get_SSP_DO !== 12'hDED) begin // using != instead of !== results in true
+	$display("ERROR!: Data read from UCR is incorrect. Expected = %0h, Actual = 0%h", c1.get_SSP_DO, ssp_di);
+    end
+    else begin
+	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = 0%h", c1.get_SSP_DO, ssp_di);
+    end
     #100; 
      
     #100; 
