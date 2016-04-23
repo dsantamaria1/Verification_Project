@@ -18,10 +18,12 @@ module tb_top ();
   logic [2:0] ssp_ra = 0;
   logic ssp_wnr = 0;
   logic [11:0] ssp_di = 12'h0;
+  logic ssp_eoc = 0;
+  logic ssp_ssel = 0;
 
   hdl_top     hdl_top_i();
 
-  //config_item   c1; 
+  config_item   c1; 
   virtual ssp_uart_if      ssp_uart_vif ;
 
  /**
@@ -45,79 +47,54 @@ module tb_top ();
    */
 
 
-  task drive_transaction(logic [2:0] reg_addr, logic [11;0] data, logic WE); 
-  //task drive_transaction(config_item  item); 
-  // sets the enable sig and drives the data
-  // and addr values on the interface
-  // It resets the enable sig after one clock
-  // cycle
-
-  //dsm_temp  pc_vif.cfg_enable_sig = 1;
-  //dsm_temp  pc_vif.cfg_rd_wr_sig = 0;
-  //dsm_temp  pc_vif.cfg_addr_sig = item.get_addr();
-  //dsm_temp  pc_vif.cfg_wdata_sig = item.get_data();
-  //dsm_temp 
-  //dsm_temp  @(posedge pc_vif.clk_sig);
-  //dsm_temp  //dsm_tmp
-  //dsm_temp  @(posedge pc_vif.clk_sig);
-  //dsm_temp  pc_vif.cfg_enable_sig = 0;
- 
-    ssp_uart_vif.SSP_WnR_sig = WE;
-    ssp_uart_vif.SSP_DI_sig = data;
-    ssp_uart_vif.SSP_RA_sig = reg_addr;
+  task drive_transaction(config_item  item); 
+  //task drive_transaction(logic [2:0] reg_addr, logic [11:0] data, logic WE, logic eoc, logic ssel); 
+  
+    ssp_uart_vif.SSP_WnR_sig 	= item.get_SSP_WnR();
+    ssp_uart_vif.SSP_DI_sig 	= item.get_SSP_DI();
+    ssp_uart_vif.SSP_RA_sig 	= item.get_SSP_RA();
+    ssp_uart_vif.SSP_SSEL_sig 	= item.get_SSP_SSEL();
+    ssp_uart_vif.SSP_EOC_sig 	= item.get_SSP_EOC();
 
   endtask
 
- /**
-   * @brief checks if the counteroutput is of a given value
-   *
-   * @param int val - the value that is expected
-   * @return int 
-   */
-
-  function int xcheck_dut (int val);
-    //dsm_temp if ($root.tb_top.hdl_top_i.dut.counter_o_sig != val) begin
-    //dsm_temp   $display("----------------------------------");
-    //dsm_temp   $display("(%t) Consistency Check Failed", $time());;
-    //dsm_temp   $display("----------------------------------");
-    //dsm_temp   $finish();
-    //dsm_temp end
-    //dsm_temp else
-    //dsm_temp   $display("----------------------------------");
-    //dsm_temp   $display("(%t) Consistency Check passed", $time());;
-    //dsm_temp   $display("----------------------------------");
-    //dsm_temp   return(0);
-  endfunction
-     
 
   // TB Top Process
   //connected clk to DUT
   always begin
     #10 clk = ~clk;
     ssp_uart_vif.Clk_sig = clk;
+    ssp_uart_vif.SSP_SCK_sig = clk;
   end
 
   initial begin
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
-    #500; 
-    ssp_ra = 'hC;
+    #0; //initialize reset to 1 at beginning of simulation
+    ssp_uart_vif.Rst_sig = rst;
+    #500;
+    
+    // bring SSP_UART out of reset
+    rst = 0;
+    ssp_uart_vif.Rst_sig = rst;
+
+    ssp_ra = 'h0;
     ssp_di = 'hDED;
     ssp_wnr = 1'b1;
-    drive_transaction(ssp_ra, ssp_di, ssp_wnr);
-    // Fixme: Lab1 -Begin
-    //dsm_temp  // Create a new config_item object and assign to variable c1
-    //dsm_temp  c1 = new();
-    //dsm_temp  // Set addr to 0 and data to 1 for c1
-    //dsm_temp  c1.set_addr(3'h0);
-    //dsm_temp  c1.set_data(10'h1);
+    ssp_eoc = 1'b1;
+    ssp_ssel = 1'b1;
+    //drive_transaction(ssp_ra, ssp_di, ssp_wnr, ssp_eoc, ssp_ssel);
+    
+    // Create a new config_item object and assign to variable c1
+    c1 = new();
+    // Set addr to 0 (UCR) and data to 12'hDED for c1
+    c1.set_SSP_RA(3'h0);
+    c1.set_SSP_DI(10'h1);
 
-    //dsm_temp  // Call method print for c1
-    //dsm_temp  c1.print();
-    //dsm_temp  // Call task drive_transaction with config_item c1 as argument
-    //dsm_temp  drive_transaction(c1);
-
-    // Fixme: Lab1 -End
+    // Call method print for c1
+    c1.print();
+    // Call task drive_transaction with config_item c1 as argument
+    drive_transaction(c1);
 
     #500; 
 
