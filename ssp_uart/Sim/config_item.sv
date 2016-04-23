@@ -41,7 +41,7 @@ class config_item;
   logic TxIdle; 
   logic RxIdle;
 
-
+  virtual ssp_uart_if      ssp_uart_vif ;
 
   /**
    * @brief Constructor
@@ -49,7 +49,7 @@ class config_item;
    * Initializes all variables to a default value
    */
 
-  function new();
+  function new(ssp_uart_if ssp_uart_vif);
       logic Rst = 1;
       logic Clk = 0;
       logic SSP_SSEL = 0;
@@ -68,6 +68,8 @@ class config_item;
       logic IRQ = 0;
       logic TxIdle = 0; 
       logic RxIdle = 0;
+      
+      this.ssp_uart_vif = ssp_uart_vif;
   endfunction: new
 
 

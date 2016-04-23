@@ -86,7 +86,7 @@ module tb_top ();
     //drive_transaction(ssp_ra, ssp_di, ssp_wnr, ssp_eoc, ssp_ssel);
     
     // Create a new config_item object and assign to variable c1
-    c1 = new();
+    c1 = new(ssp_uart_vif);
     // Set addr to 0 (UCR) and data to 12'hDED for c1
     c1.set_SSP_RA(ssp_ra);
     c1.set_SSP_DI(ssp_di);
