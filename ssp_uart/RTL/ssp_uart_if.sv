@@ -32,14 +32,14 @@ interface ssp_uart_if (input logic clk);
     logic  RxD_485_sig;                // RS-485 Mode RxD
 
     //outputs
-    logic  [11:0] SSP_DO_sig,          // SSP Data Out
-    logic  TxD_232_sig,                // RS-232 Mode TxD
-    logic  xRTS_sig,                   // RS-232 Mode RTS (Ready-To-Receive)
-    logic  TxD_485_sig,                // RS-485 Mode TxD
-    logic  xDE_sig,                    // RS-485 Mode Transceiver Drive Enable
-    logic  IRQ_sig,                    // Interrupt Request
-    logic  TxIdle_sig,
-    logic  RxIdle_sig
+    logic  [11:0] SSP_DO_sig;          // SSP Data Out
+    logic  TxD_232_sig;                // RS-232 Mode TxD
+    logic  xRTS_sig;                   // RS-232 Mode RTS (Ready-To-Receive)
+    logic  TxD_485_sig;                // RS-485 Mode TxD
+    logic  xDE_sig;                    // RS-485 Mode Transceiver Drive Enable
+    logic  IRQ_sig;                    // Interrupt Request
+    logic  TxIdle_sig;
+    logic  RxIdle_sig;
 endinterface: ssp_uart_if
 
 `endif
