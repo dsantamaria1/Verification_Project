@@ -265,7 +265,7 @@ class config_item;
   //--------------------------------------------------------
   // function get_SSP_RA();
   //--------------------------------------------------------
-  function logic get_SSP_RA();
+  function logic [2:0] get_SSP_RA();
       return SSP_RA;
   endfunction: get_SSP_RA
   
@@ -297,7 +297,7 @@ class config_item;
   //--------------------------------------------------------
   // function get_SSP_DI();
   //--------------------------------------------------------
-  function logic get_SSP_DI();
+  function logic [11:0] get_SSP_DI();
       return SSP_DI;
   endfunction: get_SSP_DI
   
@@ -398,9 +398,9 @@ endclass
 function void config_item::print();
 
     $display("Printing the pkt contents");
-    //$display("---Pkt Id --- %3d", get_id());
-    //$display("---Addr   --- %3d", get_addr());
-    //$display("---Value  --- %3d", get_data());
+    $display("--- SSP_RA --- %3h", get_SSP_RA());
+    $display("--- SSP_DI --- %3h", get_SSP_DI());
+    $display("--- R/W --- %3d", get_SSP_WnR());
 
 endfunction
 

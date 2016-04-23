@@ -88,8 +88,11 @@ module tb_top ();
     // Create a new config_item object and assign to variable c1
     c1 = new();
     // Set addr to 0 (UCR) and data to 12'hDED for c1
-    c1.set_SSP_RA(3'h0);
-    c1.set_SSP_DI(10'h1);
+    c1.set_SSP_RA(ssp_ra);
+    c1.set_SSP_DI(ssp_di);
+    c1.set_SSP_WnR(ssp_wnr);
+    c1.set_SSP_SSEL(ssp_ssel);
+    c1.set_SSP_EOC(ssp_eoc);
 
     // Call method print for c1
     c1.print();
