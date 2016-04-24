@@ -13,6 +13,22 @@
 
 module tb_top ();
 
+`define UCR 3'b000
+`define USR 3'b001
+`define RDR 3'b010
+`define TDR 3'b011
+`define SPR 3'b100
+
+`define WRITE 1'b1
+`define READ 1'b0
+
+`define UCR_RST 12'h000
+`define USR_RST 12'h000
+`define RDR_RST 12'h000
+`define TDR_RST 12'h000
+`define SPR_RST 12'h000
+
+
   logic clk = 0;
   logic rst = 1;
   logic [2:0] ssp_ra = 0;
@@ -79,9 +95,7 @@ module tb_top ();
     rst = 0;
     ssp_uart_vif.Rst_sig = rst;
 
-    ssp_ra = 'h0;
     ssp_di = 'hDED;
-    ssp_wnr = 1'b1;
     ssp_eoc = 1'b1;
     ssp_ssel = 1'b1;
     //drive_transaction(ssp_ra, ssp_di, ssp_wnr, ssp_eoc, ssp_ssel);
@@ -89,9 +103,9 @@ module tb_top ();
     // Create a new config_item object and assign to variable c1
     c1 = new(ssp_uart_vif);
     // Set addr to 0 (UCR) and data to 12'hDED for c1
-    c1.set_SSP_RA(ssp_ra);
+    c1.set_SSP_RA(`UCR);
     c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_WnR(ssp_wnr);
+    c1.set_SSP_WnR(`WRITE);
     c1.set_SSP_SSEL(ssp_ssel);
     c1.set_SSP_EOC(ssp_eoc);
 
@@ -105,19 +119,62 @@ module tb_top ();
     @(negedge ssp_uart_vif.Clk_sig);
     
     ssp_do = c1.get_SSP_DO();
-    if(ssp_do !== ssp_di) begin // using != instead of !== results in true
-	$display("ERROR @ time %0t: Data read from UCR is incorrect. Expected = %0h, Actual = %0h", $time, ssp_di, ssp_do);
-    end
-    else begin
-	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = %0h", ssp_di, ssp_do);
-    end
+    c1.set_SSP_WnR(`READ);
+
+    checkExpectedValue(ssp_di, ssp_do);
     #100; 
-     
+    ssp_uart_vif.Rst_sig = 1;
+    
+    repeat(10) begin
+      @(negedge ssp_uart_vif.Clk_sig);
+    end
+
+    ssp_uart_vif.Rst_sig = 0;
+    
+    c1 = new(ssp_uart_vif);
+    c1.set_SSP_RA(`UCR);
+    c1.set_SSP_WnR(`READ);
+    ssp_do = c1.get_SSP_DO();
+    checkExpectedValue(`UCR_RST, ssp_do);
+
+    c1 = new(ssp_uart_vif);
+    c1.set_SSP_RA(`USR);
+    c1.set_SSP_WnR(`READ);
+    ssp_do = c1.get_SSP_DO();
+    checkExpectedValue(`USR_RST, ssp_do);
+    
+    c1 = new(ssp_uart_vif);
+    c1.set_SSP_RA(`TDR);
+    c1.set_SSP_WnR(`READ);
+    ssp_do = c1.get_SSP_DO();
+    checkExpectedValue(`TDR_RST, ssp_do);
+    
+    c1 = new(ssp_uart_vif);
+    c1.set_SSP_RA(`RDR);
+    c1.set_SSP_WnR(`READ);
+    ssp_do = c1.get_SSP_DO();
+    checkExpectedValue(`RDR_RST, ssp_do);
+    
+    c1 = new(ssp_uart_vif);
+    c1.set_SSP_RA(`SPR);
+    c1.set_SSP_WnR(`READ);
+    ssp_do = c1.get_SSP_DO();
+    checkExpectedValue(`SPR_RST, ssp_do);
+    
     #100; 
 
     $finish();
 
   end
+
+  function checkExpectedValue(logic [11:0] expected, logic [11:0] actual);
+    if(actual !== expected) begin // using != instead of !== results in true
+	$display("ERROR @ time %0t: Data read from UCR is incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
+    end
+    else begin
+	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = %0h", expected, actual);
+    end
+  endfunction 
 
     // Dump waves
   initial begin
