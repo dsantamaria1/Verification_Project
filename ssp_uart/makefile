@@ -1,11 +1,16 @@
 # vcs -debug_all -sverilog -F filelist
 FLAGS=-debug_all -sverilog -F
+FLAGS2=-debug_all -sverilog -R -gui -Mupdate -F
+MEM_FLAGS=+memcbk +v2k
 
 build:
-	vcs $(FLAGS) filelist
+	vcs $(FLAGS) filelist $(MEM_FLAGS)
 
-run:
-	./simv
+buildInt:
+	vcs $(FLAGS2) filelist&
+
+run:	build
+	./simv 
 
 clean:
-	rm -rf simv* DVEfiles csrc ucli.key *dump.vcd* opendatabase.log
+	rm -rf simv* DVEfiles csrc ucli.key *vcd* opendatabase.log
