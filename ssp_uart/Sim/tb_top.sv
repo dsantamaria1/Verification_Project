@@ -178,8 +178,10 @@ module tb_top ();
 
     // Dump waves
   initial begin
-    $dumpfile("dump.vcd");
-    $dumpvars(0, tb_top);
+//    $dumpfile("dump.vcd");
+//    $dumpvars(0, tb_top);
+    $vcdplusfile("ssp_uart.dump.vpd");
+    $vcdpluson(0, tb_top); 
   end
 
 endmodule : tb_top

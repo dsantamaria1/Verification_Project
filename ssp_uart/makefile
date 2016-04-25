@@ -8,4 +8,4 @@ run:
 	./simv
 
 clean:
-	rm -rf simv* DVEfiles csrc ucli.key dump.vcd* opendatabase.log
+	rm -rf simv* DVEfiles csrc ucli.key *dump.vcd* opendatabase.log
