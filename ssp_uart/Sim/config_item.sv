@@ -403,6 +403,8 @@ function void config_item::print();
     $display("--- SSP_RA --- %3h", get_SSP_RA());
     $display("--- SSP_DI --- %3h", get_SSP_DI());
     $display("--- R/W --- %3d", get_SSP_WnR());
+    $display("--- SSP_SSEL --- %3d", get_SSP_SSEL());
+    $display("--- SSP_EOC --- %3d", get_SSP_EOC());
 
 endfunction
 
