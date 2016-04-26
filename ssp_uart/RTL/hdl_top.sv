@@ -63,8 +63,8 @@ module hdl_top;
    // ----------------------------------------------------------------
 
    SSP_UART #(
-             	.pTF_Depth(3),
-		.pRF_Depth(3)
+             	.pTF_Depth(0),
+		.pRF_Depth(0)
 	     ) ssp_uart(
     		.Rst(Rst),			// System Reset
     		.Clk(Clk),			// System Clock
