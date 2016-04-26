@@ -50,24 +50,26 @@ class config_item;
    */
 
   function new(virtual ssp_uart_if ssp_uart_vif);
-      logic Rst = 1;
-      logic Clk = 0;
-      logic SSP_SSEL = 0;
-      logic SSP_SCK = 0;
-      logic [2:0] SSP_RA = 0;
-      logic SSP_WnR = 0;
-      logic SSP_En = 0;
-      logic SSP_EOC = 0;
-      logic [11:0] SSP_DI = 0;
-      logic RxD_= 0;
-      logic xCTS = 0;
-      logic [11:0] SSP_DO = 0;
-      logic TxD_= 0;                
-      logic xRTS = 0;
-      logic xDE = 0;
-      logic IRQ = 0;
-      logic TxIdle = 0; 
-      logic RxIdle = 0;
+      Rst = 1;
+      Clk = 0;
+      SSP_SSEL = 0;
+      SSP_SCK = 0;
+      SSP_RA = 0;
+      SSP_WnR = 0;
+      SSP_En = 0;
+      SSP_EOC = 0;
+      SSP_DI = 0;
+      RxD_232= 0;
+      xCTS = 0;
+      RxD_485= 0;
+      SSP_DO = 0;
+      TxD_232= 0;                
+      xRTS = 0;
+      TxD_485= 0;                
+      xDE = 0;
+      IRQ = 0;
+      TxIdle = 0; 
+      RxIdle = 0;
       
       this.ssp_uart_vif = ssp_uart_vif;
   endfunction: new
