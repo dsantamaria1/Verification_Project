@@ -76,6 +76,7 @@ module tb_top ();
     ssp_uart_vif.SSP_RA_sig 	= item.get_SSP_RA();
     ssp_uart_vif.SSP_SSEL_sig 	= item.get_SSP_SSEL();
     ssp_uart_vif.SSP_EOC_sig 	= item.get_SSP_EOC();
+    ssp_uart_vif.SSP_En_sig 	= item.get_SSP_En();
     ssp_uart_vif.RxD_232_sig	= item.get_RxD_232();
     $display("driving transaction at time: %0t", $time);
   endtask
@@ -84,7 +85,7 @@ module tb_top ();
   // TB Top Process
   //connected clk to DUT
   always begin
-    #10 clk = ~clk;
+    #5 clk = ~clk;
     ssp_uart_vif.Clk_sig = clk;
   end
   
@@ -102,6 +103,7 @@ module tb_top ();
     ssp_di = 'hDED;
     ssp_eoc = 1'b1;
     ssp_ssel = 1'b1;
+    ssp_en = 1'b1;
     
     // Create a new config_item object and assign to variable c1
     c1 = new(ssp_uart_vif);
@@ -163,6 +165,26 @@ module tb_top ();
 //////// Put data in Transmit FIFO //////////////
     ssp_uart_reset();
     c1 = new(ssp_uart_vif);
+    ssp_di = 'h04;
+    c1.set_SSP_RA(`USR);
+    c1.set_SSP_DI(ssp_di);
+    c1.set_SSP_WnR(`WRITE);
+    c1.set_SSP_SSEL(ssp_ssel);
+    c1.set_SSP_EOC(ssp_eoc);
+    c1.print();
+    drive_transaction(c1);
+
+    repeat(6) begin
+      @(negedge ssp_uart_vif.Clk_sig);
+    end
+    c1.set_SSP_En(ssp_en);
+    drive_transaction(c1); 
+     
+    repeat(256) begin
+      @(negedge ssp_uart_vif.Clk_sig);
+    end
+
+    c1 = new(ssp_uart_vif);
     ssp_di = 'h0F1;
     c1.set_SSP_RA(`TDR);
     c1.set_SSP_DI(ssp_di);
@@ -171,7 +193,7 @@ module tb_top ();
     c1.set_SSP_EOC(ssp_eoc);
     
     // Call task drive_transaction with config_item c1 as argument
-    for(i=0; i < 5; i++) begin
+    for(i=0; i < 8; i++) begin
       drive_transaction(c1);
       ssp_di++;
       c1.set_SSP_DI(ssp_di);
@@ -179,20 +201,20 @@ module tb_top ();
         @(negedge ssp_uart_vif.Clk_sig);
       end
     end
-    #30; 
+    #150; 
     
     ssp_di = 'h800;
     c1.set_SSP_DI(ssp_di);
     drive_transaction(c1);
     repeat(2) begin
-      @(negedge ssp_uart_vif.Clk_sig);
+      @(negedge ssp_uart_vif.SSP_SCK_sig);
     end
     
     //Stop writing to TDR
     c1.set_SSP_WnR(`READ);
     c1.set_SSP_RA('h7);
     drive_transaction(c1);
-    #100;
+    #2000;
 
     //TODO: check that fifo was cleared 
    
