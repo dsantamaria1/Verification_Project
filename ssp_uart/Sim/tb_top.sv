@@ -28,8 +28,9 @@ module tb_top ();
 `define TDR_RST 12'h000
 `define SPR_RST 12'h000
 
-
+  int i = 0;
   logic clk = 0;
+  logic sclk = 0;
   logic rst = 1;
   logic [2:0] ssp_ra = 0;
   logic ssp_wnr = 0;
@@ -81,13 +82,19 @@ module tb_top ();
   always begin
     #10 clk = ~clk;
     ssp_uart_vif.Clk_sig = clk;
-    ssp_uart_vif.SSP_SCK_sig = clk;
+  end
+  
+  always begin 
+    #20 sclk = ~sclk;
+    ssp_uart_vif.SSP_SCK_sig = sclk;
   end
 
   initial begin
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
     #0; //initialize reset to 1 at beginning of simulation
+    ssp_uart_vif.Clk_sig = clk;
+    ssp_uart_vif.SSP_SCK_sig = sclk;
     
     // bring SSP_UART out of reset
     ssp_uart_reset();
@@ -153,20 +160,40 @@ module tb_top ();
     
     #100; 
 
+//////// Put data in FIFO //////////////
     ssp_uart_reset();
     c1 = new(ssp_uart_vif);
-    ssp_di = 'h0FF;
+    ssp_di = 'h0F1;
     c1.set_SSP_RA(`TDR);
     c1.set_SSP_DI(ssp_di);
     c1.set_SSP_WnR(`WRITE);
     c1.set_SSP_SSEL(ssp_ssel);
     c1.set_SSP_EOC(ssp_eoc);
     
-    // Call method print for c1
-    c1.print();
     // Call task drive_transaction with config_item c1 as argument
+    for(i=0; i < 5; i++) begin
+      drive_transaction(c1);
+      ssp_di++;
+      c1.set_SSP_DI(ssp_di);
+      repeat(5) begin
+        @(negedge ssp_uart_vif.Clk_sig);
+      end
+    end
+    #30; 
+    
+    ssp_di = 'h800;
+    c1.set_SSP_DI(ssp_di);
     drive_transaction(c1);
-    #100; 
+    repeat(2) begin
+      @(negedge ssp_uart_vif.Clk_sig);
+    end
+    
+    //Stop writing to TDR
+    c1.set_SSP_WnR(`READ);
+    c1.set_SSP_RA('h7);
+    drive_transaction(c1);
+    #300; 
+    
     $finish();
 
   end
