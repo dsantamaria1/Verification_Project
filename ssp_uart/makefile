@@ -13,4 +13,4 @@ run:	build
 	./simv 
 
 clean:
-	rm -rf simv* DVEfiles csrc ucli.key *vcd* opendatabase.log
+	rm -rf simv* DVEfiles csrc ucli.key *vcd *vpd opendatabase.log
