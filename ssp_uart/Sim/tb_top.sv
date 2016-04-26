@@ -38,6 +38,10 @@ module tb_top ();
   logic [11:0] ssp_do = 12'h0;
   logic ssp_eoc = 0;
   logic ssp_ssel = 0;
+  logic ssp_en = 0;
+  logic rxd_232 = 0;
+  logic xcts = 0;
+  logic rxd_485 = 0;
 
   hdl_top     hdl_top_i();
 
@@ -66,14 +70,14 @@ module tb_top ();
 
 
   task drive_transaction(config_item  item); 
-  //task drive_transaction(logic [2:0] reg_addr, logic [11:0] data, logic WE, logic eoc, logic ssel); 
   
     ssp_uart_vif.SSP_WnR_sig 	= item.get_SSP_WnR();
     ssp_uart_vif.SSP_DI_sig 	= item.get_SSP_DI();
     ssp_uart_vif.SSP_RA_sig 	= item.get_SSP_RA();
     ssp_uart_vif.SSP_SSEL_sig 	= item.get_SSP_SSEL();
     ssp_uart_vif.SSP_EOC_sig 	= item.get_SSP_EOC();
-
+    ssp_uart_vif.RxD_232_sig	= item.get_RxD_232();
+    $display("driving transaction at time: %0t", $time);
   endtask
 
 
@@ -85,7 +89,7 @@ module tb_top ();
   end
   
   always begin 
-    #20 sclk = ~sclk;
+    #15 sclk = ~sclk;
     ssp_uart_vif.SSP_SCK_sig = sclk;
   end
 
@@ -93,11 +97,7 @@ module tb_top ();
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
     #0; //initialize reset to 1 at beginning of simulation
-    ssp_uart_vif.Clk_sig = clk;
-    ssp_uart_vif.SSP_SCK_sig = sclk;
-    
-    // bring SSP_UART out of reset
-    ssp_uart_reset();
+    init_ssp_uart();
 
     ssp_di = 'hDED;
     ssp_eoc = 1'b1;
@@ -160,7 +160,7 @@ module tb_top ();
     
     #100; 
 
-//////// Put data in FIFO //////////////
+//////// Put data in Transmit FIFO //////////////
     ssp_uart_reset();
     c1 = new(ssp_uart_vif);
     ssp_di = 'h0F1;
@@ -192,10 +192,67 @@ module tb_top ();
     c1.set_SSP_WnR(`READ);
     c1.set_SSP_RA('h7);
     drive_transaction(c1);
-    #300; 
-    
-    $finish();
+    #100;
 
+    //TODO: check that fifo was cleared 
+   
+//////// Put data in Receive FIFO //////////////
+    ssp_uart_reset();
+    c1 = new(ssp_uart_vif);
+    ssp_di = 'h04;
+    c1.set_SSP_RA(`USR);
+    c1.set_SSP_DI(ssp_di);
+    c1.set_SSP_WnR(`WRITE);
+    c1.set_SSP_SSEL(ssp_ssel);
+    c1.set_SSP_EOC(ssp_eoc);
+    c1.print();
+    drive_transaction(c1);
+
+    repeat(256) begin
+      @(negedge ssp_uart_vif.Clk_sig);
+    end
+
+    for(i=0; i<2; i++) begin
+      c1 = new(ssp_uart_vif);
+      rxd_232 = 1;
+      c1.set_RxD_232(rxd_232);
+      drive_transaction(c1);
+
+      repeat(5) begin
+        @(negedge ssp_uart_vif.SSP_SCK_sig);
+      end
+      
+      rxd_232 = 0;
+      c1.set_RxD_232(rxd_232);
+      drive_transaction(c1);
+      #5000;
+      
+      rxd_232 = 1;
+      c1.set_RxD_232(rxd_232);
+      drive_transaction(c1);
+      #5000;
+      
+      rxd_232 = 0;
+      c1.set_RxD_232(rxd_232);
+      drive_transaction(c1);
+      #5000;
+      
+      rxd_232 = 1;
+      c1.set_RxD_232(rxd_232);
+      drive_transaction(c1);
+      #5000;
+    end 
+    c1 = new(ssp_uart_vif);
+    ssp_di = 'h400;
+    c1.set_SSP_RA(`TDR);
+    c1.set_SSP_WnR(`WRITE);
+    c1.set_SSP_DI(ssp_di);
+    c1.set_SSP_SSEL(ssp_ssel);
+    c1.set_SSP_EOC(ssp_eoc);
+    drive_transaction(c1);
+
+    #500;
+    $finish();
   end
 
   task ssp_uart_reset();
@@ -206,15 +263,31 @@ module tb_top ();
     end
 
     ssp_uart_vif.Rst_sig = 0;
-    
+  endtask
+
+  task init_ssp_uart();
+    ssp_uart_vif.Clk_sig 	= clk;
+    ssp_uart_vif.SSP_SCK_sig 	= sclk;
+    ssp_uart_vif.SSP_SSEL_sig 	= ssp_ssel;
+    ssp_uart_vif.SSP_RA_sig 	= ssp_ra;
+    ssp_uart_vif.SSP_WnR_sig 	= ssp_wnr;
+    ssp_uart_vif.SSP_En_sig 	= ssp_en;
+    ssp_uart_vif.SSP_EOC_sig 	= ssp_eoc;
+    ssp_uart_vif.SSP_DI_sig 	= ssp_di;
+    ssp_uart_vif.RxD_232_sig 	= rxd_232;
+    ssp_uart_vif.xCTS_sig 	= xcts;
+    ssp_uart_vif.RxD_485_sig 	= rxd_485;
+
+    // bring SSP_UART out of reset
+    ssp_uart_reset();
   endtask
 
   function checkExpectedValue(logic [11:0] expected, logic [11:0] actual);
     if(actual !== expected) begin // using != instead of !== results in true
-	$display("ERROR @ time %0t: Data read from UCR is incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
+	$display("ERROR @ time %0t: Data read was incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
     end
     else begin
-	$display("SUCCESS!: Data read from UCR was correct. Expected = %0h, Actual = %0h", expected, actual);
+	$display("SUCCESS!: Data read was correct. Expected = %0h, Actual = %0h", expected, actual);
     end
   endfunction 
 
