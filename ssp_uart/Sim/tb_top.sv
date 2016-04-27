@@ -13,6 +13,7 @@
 
 module tb_top ();
 
+
 `define UCR 3'b000
 `define USR 3'b001
 `define TDR 3'b010
@@ -28,7 +29,10 @@ module tb_top ();
 `define TDR_RST 12'h000
 `define SPR_RST 12'h000
 
+`include "Sim/tests.sv"
   int i = 0;
+  int status = 0;
+  int test = -1;
   logic clk = 0;
   logic sclk = 0;
   logic rst = 1;
@@ -47,6 +51,10 @@ module tb_top ();
 
   config_item   c1; 
   virtual ssp_uart_if      ssp_uart_vif ;
+  uart_reg_rw uart_reg_rw_;
+  uart_reg_init uart_reg_init_;
+  tfifo_clear tfifo_clear_;
+  rfifo_clear rfifo_clear_;
 
  /**
    * @brief initialize the ssp_uart interface
@@ -61,27 +69,6 @@ module tb_top ();
   endfunction
 
 
- /**
-   * @brief drives the transaction on the hardware
-   *
-   * @param config_item seq - the item to be driven
-   * @return void
-   */
-
-
-  task drive_transaction(config_item  item); 
-  
-    ssp_uart_vif.SSP_WnR_sig 	= item.get_SSP_WnR();
-    ssp_uart_vif.SSP_DI_sig 	= item.get_SSP_DI();
-    ssp_uart_vif.SSP_RA_sig 	= item.get_SSP_RA();
-    ssp_uart_vif.SSP_SSEL_sig 	= item.get_SSP_SSEL();
-    ssp_uart_vif.SSP_EOC_sig 	= item.get_SSP_EOC();
-    ssp_uart_vif.SSP_En_sig 	= item.get_SSP_En();
-    ssp_uart_vif.RxD_232_sig	= item.get_RxD_232();
-    $display("driving transaction at time: %0t", $time);
-  endtask
-
-
   // TB Top Process
   //connected clk to DUT
   always begin
@@ -94,188 +81,48 @@ module tb_top ();
     ssp_uart_vif.SSP_SCK_sig = sclk;
   end
 
+
   initial begin
     $timeformat(-9, 0, " ns", 5); // show time in ns
     initialize_ssp_uart_if();
     #0; //initialize reset to 1 at beginning of simulation
     init_ssp_uart();
-
-    ssp_di = 'hDED;
-    ssp_eoc = 1'b1;
-    ssp_ssel = 1'b1;
-    ssp_en = 1'b1;
+ 
+    status = $value$plusargs("test=%d", test); 
     
-    // Create a new config_item object and assign to variable c1
-    c1 = new(ssp_uart_vif);
-    // Set addr to 0 (UCR) and data to 12'hDED for c1
-    c1.set_SSP_RA(`UCR);
-    c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_WnR(`WRITE);
-    c1.set_SSP_SSEL(ssp_ssel);
-    c1.set_SSP_EOC(ssp_eoc);
+    case(test)
+      0: begin 
+    	   uart_reg_rw_ = new(ssp_uart_vif);
+    	   uart_reg_rw_.run();
+         end
+      1: begin 
+    	   uart_reg_init_ = new(ssp_uart_vif);
+    	   uart_reg_init_.run();
+         end
+      2: begin 
+    	   tfifo_clear_ = new(ssp_uart_vif);
+    	   tfifo_clear_.run();
+         end
+      3: begin 
+    	   rfifo_clear_ = new(ssp_uart_vif);
+    	   rfifo_clear_.run();
+         end
+      //4: begin 
+      //   end
 
-    // Call method print for c1
-    c1.print();
-    // Call task drive_transaction with config_item c1 as argument
-    drive_transaction(c1);
-    
-    // read data back and compare (need to wait for 2 negedges for register to latch value);
-    @(negedge ssp_uart_vif.Clk_sig);
-    @(negedge ssp_uart_vif.Clk_sig);
-    
-    ssp_do = c1.get_SSP_DO();
-    c1.set_SSP_WnR(`READ);
-
-    checkExpectedValue(ssp_di, ssp_do);
-    #100; 
-    
-    ssp_uart_reset(); 
-    c1 = new(ssp_uart_vif);
-    c1.set_SSP_RA(`UCR);
-    c1.set_SSP_WnR(`READ);
-    ssp_do = c1.get_SSP_DO();
-    checkExpectedValue(`UCR_RST, ssp_do);
-
-    c1 = new(ssp_uart_vif);
-    c1.set_SSP_RA(`USR);
-    c1.set_SSP_WnR(`READ);
-    ssp_do = c1.get_SSP_DO();
-    checkExpectedValue(`USR_RST, ssp_do);
-    
-    c1 = new(ssp_uart_vif);
-    c1.set_SSP_RA(`TDR);
-    c1.set_SSP_WnR(`READ);
-    ssp_do = c1.get_SSP_DO();
-    checkExpectedValue(`TDR_RST, ssp_do);
-    
-    c1 = new(ssp_uart_vif);
-    c1.set_SSP_RA(`RDR);
-    c1.set_SSP_WnR(`READ);
-    ssp_do = c1.get_SSP_DO();
-    checkExpectedValue(`RDR_RST, ssp_do);
-    
-    c1 = new(ssp_uart_vif);
-    c1.set_SSP_RA(`SPR);
-    c1.set_SSP_WnR(`READ);
-    ssp_do = c1.get_SSP_DO();
-    checkExpectedValue(`SPR_RST, ssp_do);
-    
-    #100; 
-
-//////// Put data in Transmit FIFO //////////////
-    ssp_uart_reset();
-    c1 = new(ssp_uart_vif);
-    ssp_di = 'h04;
-    c1.set_SSP_RA(`USR);
-    c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_WnR(`WRITE);
-    c1.set_SSP_SSEL(ssp_ssel);
-    c1.set_SSP_EOC(ssp_eoc);
-    c1.print();
-    drive_transaction(c1);
-
-    repeat(6) begin
-      @(negedge ssp_uart_vif.Clk_sig);
-    end
-    c1.set_SSP_En(ssp_en);
-    drive_transaction(c1); 
-     
-    repeat(256) begin
-      @(negedge ssp_uart_vif.Clk_sig);
-    end
-
-    c1 = new(ssp_uart_vif);
-    ssp_di = 'h0F1;
-    c1.set_SSP_RA(`TDR);
-    c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_WnR(`WRITE);
-    c1.set_SSP_SSEL(ssp_ssel);
-    c1.set_SSP_EOC(ssp_eoc);
-    
-    // Call task drive_transaction with config_item c1 as argument
-    for(i=0; i < 8; i++) begin
-      drive_transaction(c1);
-      ssp_di++;
-      c1.set_SSP_DI(ssp_di);
-      repeat(5) begin
-        @(negedge ssp_uart_vif.Clk_sig);
-      end
-    end
-    #150; 
-    
-    ssp_di = 'h800;
-    c1.set_SSP_DI(ssp_di);
-    drive_transaction(c1);
-    repeat(2) begin
-      @(negedge ssp_uart_vif.SSP_SCK_sig);
-    end
-    
-    //Stop writing to TDR
-    c1.set_SSP_WnR(`READ);
-    c1.set_SSP_RA('h7);
-    drive_transaction(c1);
-    #2000;
-
-    //TODO: check that fifo was cleared 
-   
-//////// Put data in Receive FIFO //////////////
-    ssp_uart_reset();
-    c1 = new(ssp_uart_vif);
-    ssp_di = 'h04;
-    c1.set_SSP_RA(`USR);
-    c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_WnR(`WRITE);
-    c1.set_SSP_SSEL(ssp_ssel);
-    c1.set_SSP_EOC(ssp_eoc);
-    c1.print();
-    drive_transaction(c1);
-
-    repeat(256) begin
-      @(negedge ssp_uart_vif.Clk_sig);
-    end
-
-    for(i=0; i<2; i++) begin
-      c1 = new(ssp_uart_vif);
-      rxd_232 = 1;
-      c1.set_RxD_232(rxd_232);
-      drive_transaction(c1);
-
-      repeat(5) begin
-        @(negedge ssp_uart_vif.SSP_SCK_sig);
-      end
-      
-      rxd_232 = 0;
-      c1.set_RxD_232(rxd_232);
-      drive_transaction(c1);
-      #5000;
-      
-      rxd_232 = 1;
-      c1.set_RxD_232(rxd_232);
-      drive_transaction(c1);
-      #5000;
-      
-      rxd_232 = 0;
-      c1.set_RxD_232(rxd_232);
-      drive_transaction(c1);
-      #5000;
-      
-      rxd_232 = 1;
-      c1.set_RxD_232(rxd_232);
-      drive_transaction(c1);
-      #5000;
-    end 
-    c1 = new(ssp_uart_vif);
-    ssp_di = 'h400;
-    c1.set_SSP_RA(`TDR);
-    c1.set_SSP_WnR(`WRITE);
-    c1.set_SSP_DI(ssp_di);
-    c1.set_SSP_SSEL(ssp_ssel);
-    c1.set_SSP_EOC(ssp_eoc);
-    drive_transaction(c1);
-
+      default: 	begin 
+	       	  $display("********************");
+	       	  $display("********************");
+	       	  $display("Invalid test chosen. test = %0d", test);
+	       	  $display("********************");
+	       	  $display("********************");
+		end
+    endcase 
+  
     #500;
     $finish();
   end
+
 
   task ssp_uart_reset();
     ssp_uart_vif.Rst_sig = 1;
@@ -304,14 +151,6 @@ module tb_top ();
     ssp_uart_reset();
   endtask
 
-  function checkExpectedValue(logic [11:0] expected, logic [11:0] actual);
-    if(actual !== expected) begin // using != instead of !== results in true
-	$display("ERROR @ time %0t: Data read was incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
-    end
-    else begin
-	$display("SUCCESS!: Data read was correct. Expected = %0h, Actual = %0h", expected, actual);
-    end
-  endfunction 
 
     // Dump waves
   initial begin
