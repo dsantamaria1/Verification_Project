@@ -10,7 +10,7 @@ buildInt:
 	vcs $(FLAGS2) filelist&
 
 run:	build
-	./simv 
+	./simv +test=$(test)
 
 clean:
 	rm -rf simv* DVEfiles csrc ucli.key *vcd *vpd opendatabase.log
