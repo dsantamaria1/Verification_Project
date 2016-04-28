@@ -55,6 +55,7 @@ module tb_top ();
   uart_reg_init uart_reg_init_;
   tfifo_clear tfifo_clear_;
   rfifo_clear rfifo_clear_;
+  the_interrupt the_interrupt_;
 
  /**
    * @brief initialize the ssp_uart interface
@@ -107,8 +108,10 @@ module tb_top ();
     	   rfifo_clear_ = new(ssp_uart_vif);
     	   rfifo_clear_.run();
          end
-      //4: begin 
-      //   end
+      4: begin 
+           the_interrupt_ = new(ssp_uart_vif);
+           the_interrupt_.run();
+         end
 
       default: 	begin 
 	       	  $display("********************");
