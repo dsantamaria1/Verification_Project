@@ -40,6 +40,8 @@ interface ssp_uart_if (input logic clk);
     logic  IRQ_sig;                    // Interrupt Request
     logic  TxIdle_sig;
     logic  RxIdle_sig;
+
+    logic  usr_0;
 endinterface: ssp_uart_if
 
 `endif
