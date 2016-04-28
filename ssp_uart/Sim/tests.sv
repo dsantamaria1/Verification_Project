@@ -158,7 +158,7 @@ class tfifo_clear extends test_base;
       c1.print();
       drive_transaction(c1);
 
-      // wait for USR[0] to toggle to clear iTFE
+      // wait for USR[0] to toggle to clear iTFE/iTHE 
       @(posedge ssp_uart_vif.usr_0);
 
       c1.set_SSP_En(ssp_en);
@@ -186,8 +186,9 @@ class tfifo_clear extends test_base;
         end
       end
       #150; 
-      
-      ssp_di = 'h800;
+     
+      // clear fifo 
+      ssp_di = 'h800; //TFC is bit 11
       c1.set_SSP_DI(ssp_di);
       drive_transaction(c1);
       repeat(2) begin
@@ -227,7 +228,7 @@ class rfifo_clear extends test_base;
       c1.print();
       drive_transaction(c1);
 
-      //TODO: change to iTFE going low
+      //TODO: change to iTFE/iTHE going low (Maybe not for rfifo?)
       repeat(256) begin
         @(negedge ssp_uart_vif.Clk_sig);
       end
@@ -275,3 +276,87 @@ class rfifo_clear extends test_base;
       #500;
     endtask: run
 endclass: rfifo_clear
+
+
+class the_interrupt extends test_base;
+    function new(virtual ssp_uart_if ssp_uart_vif);
+      super.new(ssp_uart_vif);
+    endfunction: new
+
+    task run();
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+      ssp_en = 1'b1;
+
+      c1 = new(ssp_uart_vif);
+      ssp_di = 'h04;
+      c1.set_SSP_RA(`USR);
+      c1.set_SSP_DI(ssp_di);
+      c1.set_SSP_WnR(`WRITE);
+      c1.set_SSP_SSEL(ssp_ssel);
+      c1.set_SSP_EOC(ssp_eoc);
+      c1.print();
+      drive_transaction(c1);
+
+      // wait for USR[0] to toggle to clear iTFE/iTHE
+      @(posedge ssp_uart_vif.usr_0);
+
+      c1.set_SSP_En(ssp_en);
+      drive_transaction(c1); 
+       
+      repeat(256) begin
+        @(negedge ssp_uart_vif.Clk_sig);
+      end
+
+      //enable interrupt
+      c1 = new(ssp_uart_vif);
+      ssp_di = 'h100;
+      c1.set_SSP_RA(`UCR);
+      c1.set_SSP_DI(ssp_di);
+      c1.set_SSP_WnR(`WRITE);
+      c1.set_SSP_SSEL(ssp_ssel);
+      c1.set_SSP_EOC(ssp_eoc);
+      c1.print();
+      drive_transaction(c1); 
+      
+      repeat(10) begin
+        @(negedge ssp_uart_vif.Clk_sig);
+      end
+
+      //Write data to TDR to go into Transmit FIFO
+      c1 = new(ssp_uart_vif);
+      ssp_di = 'h0F1;
+      c1.set_SSP_RA(`TDR);
+      c1.set_SSP_DI(ssp_di);
+      c1.set_SSP_WnR(`WRITE);
+      c1.set_SSP_SSEL(ssp_ssel);
+      c1.set_SSP_EOC(ssp_eoc);
+      
+      // Call task drive_transaction with config_item c1 as argument
+      for(i=0; i < 9; i++) begin
+        drive_transaction(c1);
+        ssp_di++;
+        c1.set_SSP_DI(ssp_di);
+        repeat(5) begin
+          @(negedge ssp_uart_vif.Clk_sig);
+        end
+      end
+      #150;
+ 
+      c1.set_SSP_WnR(`READ);
+      drive_transaction(c1);
+
+      $display("waiting on tfifo cnt to be less than half @ time: %0t", $time);
+      wait(ssp_uart_vif.tcnt < 'h8);
+      #20us;
+
+      //TODO: Check that iTHE and IRQ go high
+      //TODO: De-assert interrupt by reading USR or 
+      //      by filling FIFO above the Half Empty mark
+    endtask: run
+
+endclass: the_interrupt
+
+
+
+class 
