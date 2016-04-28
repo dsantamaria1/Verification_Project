@@ -99,6 +99,7 @@ class uart_reg_init extends test_base;
     endfunction: new
 
     task run();
+
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`UCR);
       c1.set_SSP_WnR(`READ);
@@ -143,6 +144,10 @@ class tfifo_clear extends test_base;
         
 //////// Put data in Transmit FIFO //////////////
     task run();
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+      ssp_en = 1'b1;
+
       c1 = new(ssp_uart_vif);
       ssp_di = 'h04;
       c1.set_SSP_RA(`USR);
@@ -153,9 +158,9 @@ class tfifo_clear extends test_base;
       c1.print();
       drive_transaction(c1);
 
-      repeat(6) begin
-        @(negedge ssp_uart_vif.Clk_sig);
-      end
+      // wait for USR[0] to toggle to clear iTFE
+      @(posedge ssp_uart_vif.usr_0);
+
       c1.set_SSP_En(ssp_en);
       drive_transaction(c1); 
        
@@ -209,6 +214,9 @@ class rfifo_clear extends test_base;
 //////// Put data in Receive FIFO //////////////
     task run();
       ssp_uart_reset();
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+
       c1 = new(ssp_uart_vif);
       ssp_di = 'h04;
       c1.set_SSP_RA(`USR);
