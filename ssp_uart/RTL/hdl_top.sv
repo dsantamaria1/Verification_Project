@@ -57,6 +57,8 @@ module hdl_top;
    assign ssp_uart_cfg_if_i.IRQ_sig	= IRQ;
    assign ssp_uart_cfg_if_i.TxIdle_sig	= TxIdle;
    assign ssp_uart_cfg_if_i.RxIdle_sig	= RxIdle;
+   
+   assign ssp_uart_cfg_if_i.usr_0	= ssp_uart.USR[0];
 
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)
