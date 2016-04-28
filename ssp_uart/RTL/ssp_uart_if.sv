@@ -42,6 +42,7 @@ interface ssp_uart_if (input logic clk);
     logic  RxIdle_sig;
 
     logic  usr_0;
+    logic  [4:0] tcnt;
 endinterface: ssp_uart_if
 
 `endif
