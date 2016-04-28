@@ -56,6 +56,10 @@ module tb_top ();
   tfifo_clear tfifo_clear_;
   rfifo_clear rfifo_clear_;
   the_interrupt the_interrupt_;
+  tfe_interrupt tfe_interrupt_;
+  interrupt_disable interrupt_disable_;
+  rhf_interrupt rhf_interrupt_;
+  receiveFifoStatus receiveFifoStatus_;
 
  /**
    * @brief initialize the ssp_uart interface
@@ -112,6 +116,22 @@ module tb_top ();
            the_interrupt_ = new(ssp_uart_vif);
            the_interrupt_.run();
          end
+      5: begin 
+           tfe_interrupt_ = new(ssp_uart_vif);
+           tfe_interrupt_.run();
+         end
+      6: begin 
+           interrupt_disable_ = new(ssp_uart_vif);
+           interrupt_disable_.run();
+         end
+      7: begin 
+           rhf_interrupt_ = new(ssp_uart_vif);
+           rhf_interrupt_.run();
+         end
+      8: begin 
+           receiveFifoStatus_ = new(ssp_uart_vif);
+           receiveFifoStatus_.run();
+         end
 
       default: 	begin 
 	       	  $display("********************");
@@ -127,15 +147,16 @@ module tb_top ();
   end
 
 
+
   task ssp_uart_reset();
     ssp_uart_vif.Rst_sig = 1;
-    
     repeat(10) begin
       @(negedge ssp_uart_vif.Clk_sig);
     end
-
     ssp_uart_vif.Rst_sig = 0;
   endtask
+
+
 
   task init_ssp_uart();
     ssp_uart_vif.Clk_sig 	= clk;
@@ -153,6 +174,7 @@ module tb_top ();
     // bring SSP_UART out of reset
     ssp_uart_reset();
   endtask
+
 
 
     // Dump waves
