@@ -75,7 +75,7 @@ class TFIFO_base extends test_base;
   endtask: enableInterrupt
 
 
-  task clearTFifoInterrupts;
+  task clearFifoInterrupts;
       c1 = new(ssp_uart_vif);
       ssp_di = 'h02;
       ssp_en = 1'b1;
@@ -95,7 +95,7 @@ class TFIFO_base extends test_base;
       repeat(256) begin
         @(negedge ssp_uart_vif.Clk_sig);
       end
-  endtask: clearTFifoInterrupts
+  endtask: clearFifoInterrupts
 
 
   task populateTFIFO(int numTransactions);
@@ -254,6 +254,52 @@ class RFIFO_base extends test_base;
   endtask: populateRFIFO
   
 
+  task createTimeOut();
+      int j =0;     
+      for(i=0; i<1; i++) begin
+        rxd_232 = 1;
+        c1 = new(ssp_uart_vif);
+        c1.set_RxD_232(rxd_232);
+        drive_transaction(c1);
+
+        repeat(5) begin
+          @(negedge ssp_uart_vif.SSP_SCK_sig);
+        end
+
+        //send start bit
+        rxd_232 = 0;
+        $display("rxd_232 = %0h", rxd_232);
+        c1.set_RxD_232(rxd_232);
+        drive_transaction(c1);
+        
+        repeat(10) begin
+          @(negedge ssp_uart_vif.SSP_SCK_sig);
+        end
+        
+        for(j=0; j<8; j++) begin
+          rxd_232 = $urandom();
+          $display("rxd_232 = %0h", rxd_232);
+          c1.set_RxD_232(rxd_232);
+          drive_transaction(c1);
+          repeat(64) begin
+            @(negedge ssp_uart_vif.Clk_sig);
+          end
+        end 
+
+        //send stop bit
+        rxd_232 = 'bx;
+        $display("rxd_232 = %0h", rxd_232);
+        c1.set_RxD_232(rxd_232);
+        drive_transaction(c1);
+        
+        repeat(10) begin
+          @(negedge ssp_uart_vif.SSP_SCK_sig);
+        end
+
+     end// for
+
+  endtask: createTimeOut
+
 endclass: RFIFO_base
 
 
@@ -353,7 +399,7 @@ class tfifo_clear extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
 
-      clearTFifoInterrupts();
+      clearFifoInterrupts();
 
       populateTFIFO(6);
       
@@ -387,7 +433,7 @@ class the_interrupt extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
 
-      clearTFifoInterrupts();
+      clearFifoInterrupts();
       enableInterrupt();
 
       populateTFIFO(9);
@@ -418,7 +464,7 @@ class tfe_interrupt extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
  
-      clearTFifoInterrupts();
+      clearFifoInterrupts();
 
       enableInterrupt();
 
@@ -436,6 +482,29 @@ class tfe_interrupt extends TFIFO_base;
     endtask: run
 
 endclass: tfe_interrupt
+
+
+
+class transmitFifoStatus extends TFIFO_base;
+    function new(virtual ssp_uart_if ssp_uart_vif);
+      super.new(ssp_uart_vif);
+    endfunction: new
+    rand logic [3:0] numTransactions = 'h0;
+
+    task run();
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+      ssp_en = 1'b1;
+ 
+      clearFifoInterrupts();
+
+      this.randomize();
+      $display("numTransactions being sent = %0d @ time: %0t",numTransactions, $time);
+      populateTFIFO(numTransactions);
+     
+      #20us; 
+    endtask: run
+endclass: transmitFifoStatus
 
 
 
@@ -496,7 +565,7 @@ class interrupt_disable extends TFIFO_base;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
  
-      clearTFifoInterrupts();
+      clearFifoInterrupts();
 
       populateTFIFO(3);
      
@@ -512,11 +581,14 @@ class interrupt_disable extends TFIFO_base;
 endclass: interrupt_disable
 
 
+
+
 class receiveFifoStatus extends RFIFO_base;
     function new(virtual ssp_uart_if ssp_uart_vif);
       super.new(ssp_uart_vif);
     endfunction: new
     rand logic [3:0] numTransactions = 'h0;
+
     task run();
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
@@ -532,3 +604,21 @@ class receiveFifoStatus extends RFIFO_base;
     endtask: run
 endclass: receiveFifoStatus
 
+
+
+class createTimeOut extends RFIFO_base;
+    function new(virtual ssp_uart_if ssp_uart_vif);
+      super.new(ssp_uart_vif);
+    endfunction: new
+    task run();
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+      ssp_en = 1'b1;
+ 
+      clearFifoInterrupts();
+      enableInterrupt();
+      createTimeOut();
+      
+      #20us; 
+    endtask: run
+endclass: createTimeOut

@@ -54,7 +54,7 @@ class config_item;
       Clk = 0;
       SSP_SSEL = 0;
       SSP_SCK = 0;
-      SSP_RA = 0;
+      SSP_RA = 'h7;
       SSP_WnR = 0;
       SSP_En = 0;
       SSP_EOC = 0;

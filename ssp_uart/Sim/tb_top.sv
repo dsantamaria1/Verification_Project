@@ -60,7 +60,8 @@ module tb_top ();
   interrupt_disable interrupt_disable_;
   rhf_interrupt rhf_interrupt_;
   receiveFifoStatus receiveFifoStatus_;
-
+  transmitFifoStatus transmitFifoStatus_;
+  createTimeOut createTimeOut_;
  /**
    * @brief initialize the ssp_uart interface
    *
@@ -131,6 +132,14 @@ module tb_top ();
       8: begin 
            receiveFifoStatus_ = new(ssp_uart_vif);
            receiveFifoStatus_.run();
+         end
+      9: begin 
+           transmitFifoStatus_ = new(ssp_uart_vif);
+           transmitFifoStatus_.run();
+         end
+      10: begin 
+           createTimeOut_ = new(ssp_uart_vif);
+           createTimeOut_.run();
          end
 
       default: 	begin 
