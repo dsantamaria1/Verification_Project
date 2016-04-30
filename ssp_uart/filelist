@@ -10,5 +10,6 @@ RTL/UART_INT.v
 RTL/UART_RTO.v
 RTL/UART_RXSM.v
 RTL/UART_TXSM.v
+Sim/sspUartCoverage.sv
 Sim/config_item.sv
 Sim/tb_top.sv

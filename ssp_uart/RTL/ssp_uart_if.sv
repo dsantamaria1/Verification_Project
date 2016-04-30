@@ -44,6 +44,19 @@ interface ssp_uart_if (input logic clk);
     logic  usr_0;
     logic  [4:0] tcnt;
     logic  [4:0] rcnt;
+    logic  iTFE;
+    logic  iTHE;
+    logic  iRTO;
+    logic  iRHF;
+    logic  IE; 				//Interrupt Enable
+    logic  T_FF; 			//Fifo full
+    logic  R_FF; 			//Fifo full
+    logic  TFC; 			//Fifo clear
+    logic  RFC; 			//Fifo clear
+    logic  [1:0] RS;			//Receive Status
+    logic  [1:0] TS; 			//Transmit Status
+    logic  [7:0] TFThr;			//Transmit threshold
+    logic  [7:0] RFThr;			//Receive threshold
 endinterface: ssp_uart_if
 
 `endif

@@ -61,7 +61,20 @@ module hdl_top;
    assign ssp_uart_cfg_if_i.usr_0	= ssp_uart.USR[0];
    assign ssp_uart_cfg_if_i.tcnt	= ssp_uart.TFCnt;
    assign ssp_uart_cfg_if_i.rcnt	= ssp_uart.RFCnt;
+   assign ssp_uart_cfg_if_i.iTFE	= ssp_uart.iTFE;
+   assign ssp_uart_cfg_if_i.iTHE	= ssp_uart.iTHE;
+   assign ssp_uart_cfg_if_i.iRHF	= ssp_uart.iRHF;
+   assign ssp_uart_cfg_if_i.iRTO	= ssp_uart.iRTO;
 
+   assign ssp_uart_cfg_if_i.IE		= ssp_uart.IE;
+   assign ssp_uart_cfg_if_i.TS		= ssp_uart.TS;
+   assign ssp_uart_cfg_if_i.RS		= ssp_uart.RS;
+   assign ssp_uart_cfg_if_i.TFThr	= ssp_uart.TFThr;
+   assign ssp_uart_cfg_if_i.RFThr	= ssp_uart.RFThr;
+   assign ssp_uart_cfg_if_i.T_FF	= ssp_uart.TF_FF;
+   assign ssp_uart_cfg_if_i.R_FF	= ssp_uart.RF_FF;
+   assign ssp_uart_cfg_if_i.TFC		= ssp_uart.TFC;
+   assign ssp_uart_cfg_if_i.RFC		= ssp_uart.RFC;
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)
    // ----------------------------------------------------------------
