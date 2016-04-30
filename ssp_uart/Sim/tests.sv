@@ -28,7 +28,13 @@ class test_base;
    * @param config_item seq - the item to be driven
    * @return void
    */
-  
+  task waitN_ClkCycles(int n);
+      repeat(n) begin
+        @(negedge ssp_uart_vif.Clk_sig);
+      end
+  endtask 
+
+ 
   task drive_transaction(config_item  item); 
     ssp_uart_vif.SSP_WnR_sig 	= item.get_SSP_WnR();
     ssp_uart_vif.SSP_DI_sig 	= item.get_SSP_DI();
@@ -411,11 +417,12 @@ class tfifo_clear extends TFIFO_base;
       c1.set_SSP_EOC(ssp_eoc);
       drive_transaction(c1);
      
-      
+      assert(ssp_uart_vif.tcnt > 0) $info("FIFO has data! tcnt = %0h", ssp_uart_vif.tcnt); else $error("Transmit FIFO was not populated! tcnt = %0h", ssp_uart_vif.tcnt);
       clearTFIFO();
-      #5us;
 
-      //TODO: check that fifo was cleared 
+      waitN_ClkCycles(10);
+      assert(ssp_uart_vif.tcnt === 0) $info("FIFO was cleared! tcnt = %0h", ssp_uart_vif.tcnt); else $error("Transmit FIFO was not cleared! tcnt = %0h", ssp_uart_vif.tcnt);
+    
     endtask: run
 
 endclass:tfifo_clear
@@ -523,9 +530,12 @@ class rfifo_clear extends RFIFO_base;
       clearFifoInterrupts();
      
       populateRFIFO(2);
+      assert(ssp_uart_vif.rcnt > 0) $info("FIFO has data! rcnt = %0h", ssp_uart_vif.rcnt); else $error("Receive FIFO was not populated! rcnt = %0h", ssp_uart_vif.rcnt);
       clearRFIFO();
-  
-      #500;
+      
+      waitN_ClkCycles(10);
+      assert(ssp_uart_vif.rcnt === 0) $info("FIFO was cleared! rcnt = %0h", ssp_uart_vif.rcnt); else $error("Receive FIFO was not cleared! rcnt = %0h", ssp_uart_vif.rcnt);
+      
     endtask: run
 endclass: rfifo_clear
 
@@ -577,7 +587,6 @@ class interrupt_disable extends TFIFO_base;
 
       //TODO: Check that iTFE and IRQ never go high (also that TxIDLE is asserted)
     endtask: run
-
 endclass: interrupt_disable
 
 
@@ -603,6 +612,7 @@ class receiveFifoStatus extends RFIFO_base;
       #20us; 
     endtask: run
 endclass: receiveFifoStatus
+
 
 
 

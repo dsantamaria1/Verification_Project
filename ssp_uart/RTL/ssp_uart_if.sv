@@ -43,6 +43,7 @@ interface ssp_uart_if (input logic clk);
 
     logic  usr_0;
     logic  [4:0] tcnt;
+    logic  [4:0] rcnt;
 endinterface: ssp_uart_if
 
 `endif

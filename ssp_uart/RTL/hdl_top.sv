@@ -60,6 +60,7 @@ module hdl_top;
    
    assign ssp_uart_cfg_if_i.usr_0	= ssp_uart.USR[0];
    assign ssp_uart_cfg_if_i.tcnt	= ssp_uart.TFCnt;
+   assign ssp_uart_cfg_if_i.rcnt	= ssp_uart.RFCnt;
 
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)
