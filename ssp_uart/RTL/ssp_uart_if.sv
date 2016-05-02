@@ -57,6 +57,14 @@ interface ssp_uart_if (input logic clk);
     logic  [1:0] TS; 			//Transmit Status
     logic  [7:0] TFThr;			//Transmit threshold
     logic  [7:0] RFThr;			//Receive threshold
+    logic  TFW;
+    logic  RERR;
+    logic  RRDY;
+    logic  TRDY;
+    logic  RTO;
+    logic  CTSi;
+    logic  RTSi;
+    logic  [1:0] MD;
 endinterface: ssp_uart_if
 
 `endif

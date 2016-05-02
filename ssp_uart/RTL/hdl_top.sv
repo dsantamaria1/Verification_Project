@@ -75,6 +75,16 @@ module hdl_top;
    assign ssp_uart_cfg_if_i.R_FF	= ssp_uart.RF_FF;
    assign ssp_uart_cfg_if_i.TFC		= ssp_uart.TFC;
    assign ssp_uart_cfg_if_i.RFC		= ssp_uart.RFC;
+
+   
+   assign ssp_uart_cfg_if_i.TFW		= ssp_uart.HLD;
+   assign ssp_uart_cfg_if_i.RERR	= ssp_uart.RERR;
+   assign ssp_uart_cfg_if_i.RRDY	= ssp_uart.RRDY;
+   assign ssp_uart_cfg_if_i.TRDY	= ssp_uart.TRDY;
+   assign ssp_uart_cfg_if_i.CTSi	= ssp_uart.CTSi;
+   assign ssp_uart_cfg_if_i.RTSi	= ssp_uart.RTSi;
+   assign ssp_uart_cfg_if_i.MD		= ssp_uart.MD;
+   assign ssp_uart_cfg_if_i.RTO		= ssp_uart.RTO;
    // ----------------------------------------------------------------
    // -- DUT (Design Under Test)
    // ----------------------------------------------------------------
