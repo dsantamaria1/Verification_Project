@@ -1,5 +1,5 @@
 # vcs -debug_all -sverilog -F filelist
-FLAGS=-debug_all -sverilog -F
+FLAGS=-debug_all -sverilog -ntb -F
 FLAGS2=-debug_all -sverilog -R -gui -Mupdate -F
 MEM_FLAGS=+memcbk +v2k
 DATE=`date +'%S'`
