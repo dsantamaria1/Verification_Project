@@ -442,7 +442,6 @@ class tfifo_clear extends TFIFO_base;
     function new(virtual ssp_uart_if ssp_uart_vif);
       super.new(ssp_uart_vif);
     endfunction: new
-    sspUartCov cov = new(ssp_uart_vif);     
     
     task run();
       ssp_eoc = 1'b1;
@@ -465,7 +464,6 @@ class tfifo_clear extends TFIFO_base;
 
       waitN_ClkCycles(10);
       assert(ssp_uart_vif.tcnt === 0) $info("FIFO was cleared! tcnt = %0h", ssp_uart_vif.tcnt); else $error("Transmit FIFO was not cleared! tcnt = %0h", ssp_uart_vif.tcnt);
-      //cov.TFIFO.sample();
     endtask: run
 
 endclass:tfifo_clear
