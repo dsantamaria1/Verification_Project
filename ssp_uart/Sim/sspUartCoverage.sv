@@ -3,6 +3,7 @@ class sspUartCov;
 
   function new(virtual ssp_uart_if ssp_uart_vif);
     this.ssp_uart_vif = ssp_uart_vif;
+    this.TFIFO = new();
   endfunction 
 
   covergroup TFIFO @(posedge ssp_uart_vif.Clk_sig);
@@ -10,4 +11,5 @@ class sspUartCov;
       bins cleared = {1};
     }
   endgroup
+
 endclass: sspUartCov
