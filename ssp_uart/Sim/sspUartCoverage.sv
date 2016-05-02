@@ -3,25 +3,26 @@ class sspUartCov;
 
   function new(virtual ssp_uart_if ssp_uart_vif);
     this.ssp_uart_vif = ssp_uart_vif;
-    this.TFIFO = new();
-    this.RFIFO = new();
+    //this.TFIFO = new();
+    //this.RFIFO = new();
     this.TDR = new();
     this.RDR = new();
     this.USR = new();
     this.UCR = new();
+    this.Interrupts = new();
   endfunction 
 
-  covergroup TFIFO @(posedge ssp_uart_vif.Clk_sig);
-    //clear: coverpoint ssp_uart_vif.TFC{
-    //  bins cleared = {1};
-    //}
-  endgroup
+  //covergroup TFIFO @(posedge ssp_uart_vif.Clk_sig);
+  //  Full: coverpoint ssp_uart_vif.T_FF{
+  //    bins full = {1};
+  //  }
+  //endgroup
 
-  covergroup RFIFO @(posedge ssp_uart_vif.Clk_sig);
-    //clear: coverpoint ssp_uart_vif.RFC{
-    //  bins cleared = {1};
-    //}
-  endgroup
+  //covergroup RFIFO @(posedge ssp_uart_vif.Clk_sig);
+  //  Full: coverpoint ssp_uart_vif.R_FF{
+  //    bins full = {1};
+  //  }
+  //endgroup
   
   covergroup TDR @(posedge ssp_uart_vif.Clk_sig);
     TFC: coverpoint ssp_uart_vif.TFC{
@@ -118,4 +119,40 @@ class sspUartCov;
     }
 
   endgroup
+
+  covergroup Interrupts @(posedge ssp_uart_vif.Clk_sig);
+    iTFE: coverpoint ssp_uart_vif.iTFE & ssp_uart_vif.IRQ_sig{
+      bins triggered = {1};
+    }
+    
+    iTHE: coverpoint ssp_uart_vif.iTHE & ssp_uart_vif.IRQ_sig{
+      bins triggered = {1};
+    }
+    
+    iRHF: coverpoint ssp_uart_vif.iRHF & ssp_uart_vif.IRQ_sig{
+      bins triggered = {1};
+    }
+    
+    iRTO: coverpoint ssp_uart_vif.iRTO & ssp_uart_vif.IRQ_sig{
+      bins triggered = {1};
+    }
+    
+    iTFE_dis: coverpoint ssp_uart_vif.iTFE & ~ssp_uart_vif.IRQ_sig{
+      bins disabled = {1};
+    }
+    
+    iTHE_dis: coverpoint ssp_uart_vif.iTHE & ~ssp_uart_vif.IRQ_sig{
+      bins disabled = {1};
+    }
+    
+    iRHF_dis: coverpoint ssp_uart_vif.iRHF & ~ssp_uart_vif.IRQ_sig{
+      bins disabled = {1};
+    }
+    
+    iRTO_dis: coverpoint ssp_uart_vif.iRTO & ~ssp_uart_vif.IRQ_sig{
+      bins disabled = {1};
+    }
+    
+  endgroup
+
 endclass: sspUartCov
