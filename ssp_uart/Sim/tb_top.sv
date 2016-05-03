@@ -63,7 +63,7 @@ module tb_top ();
   transmitFifoStatus transmitFifoStatus_;
   createTimeOut createTimeOut_;
   sspUartCov cov;
-
+  test_base tBase;
  /**
    * @brief initialize the ssp_uart interface
    *
@@ -95,6 +95,8 @@ module tb_top ();
     initialize_ssp_uart_if();
     #0; //initialize reset to 1 at beginning of simulation
     init_ssp_uart();
+    tBase = new(ssp_uart_vif);
+    tBase.clearFifoInterrupts();
     cov = new(ssp_uart_vif);     
  
     status = $value$plusargs("test=%d", test); 
