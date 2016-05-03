@@ -106,6 +106,7 @@ class sspUartCov;
 
   endgroup
 
+
   covergroup UCR @(posedge ssp_uart_vif.Clk_sig);
     IE: coverpoint ssp_uart_vif.IE{ 
       bins enabled = {1};
@@ -120,36 +121,37 @@ class sspUartCov;
 
   endgroup
 
+
   covergroup Interrupts @(posedge ssp_uart_vif.Clk_sig);
-    iTFE: coverpoint ssp_uart_vif.iTFE & ssp_uart_vif.IRQ_sig{
+    iTFE: coverpoint ssp_uart_vif.iTFE & ssp_uart_vif.IRQ_sig & ssp_uart_vif.IE{
       bins triggered = {1};
     }
     
-    iTHE: coverpoint ssp_uart_vif.iTHE & ssp_uart_vif.IRQ_sig{
+    iTHE: coverpoint ssp_uart_vif.iTHE & ssp_uart_vif.IRQ_sig & ssp_uart_vif.IE{
       bins triggered = {1};
     }
     
-    iRHF: coverpoint ssp_uart_vif.iRHF & ssp_uart_vif.IRQ_sig{
+    iRHF: coverpoint ssp_uart_vif.iRHF & ssp_uart_vif.IRQ_sig & ssp_uart_vif.IE{
       bins triggered = {1};
     }
     
-    iRTO: coverpoint ssp_uart_vif.iRTO & ssp_uart_vif.IRQ_sig{
+    iRTO: coverpoint ssp_uart_vif.iRTO & ssp_uart_vif.IRQ_sig & ssp_uart_vif.IE{
       bins triggered = {1};
     }
     
-    iTFE_dis: coverpoint ssp_uart_vif.iTFE & ~ssp_uart_vif.IRQ_sig{
+    iTFE_dis: coverpoint ssp_uart_vif.iTFE & ~ssp_uart_vif.IRQ_sig & ~ssp_uart_vif.IE{
       bins disabled = {1};
     }
     
-    iTHE_dis: coverpoint ssp_uart_vif.iTHE & ~ssp_uart_vif.IRQ_sig{
+    iTHE_dis: coverpoint ssp_uart_vif.iTHE & ~ssp_uart_vif.IRQ_sig & ~ssp_uart_vif.IE{
       bins disabled = {1};
     }
     
-    iRHF_dis: coverpoint ssp_uart_vif.iRHF & ~ssp_uart_vif.IRQ_sig{
+    iRHF_dis: coverpoint ssp_uart_vif.iRHF & ~ssp_uart_vif.IRQ_sig & ~ssp_uart_vif.IE{
       bins disabled = {1};
     }
     
-    iRTO_dis: coverpoint ssp_uart_vif.iRTO & ~ssp_uart_vif.IRQ_sig{
+    iRTO_dis: coverpoint ssp_uart_vif.iRTO & ~ssp_uart_vif.IRQ_sig & ~ssp_uart_vif.IE{
       bins disabled = {1};
     }
     
