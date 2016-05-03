@@ -74,6 +74,34 @@ class test_base;
     item.print();
   endtask
 
+
+
+  task clearFifoInterrupts;
+      ssp_eoc = 1'b1;
+      ssp_ssel = 1'b1;
+
+      c1 = new(ssp_uart_vif);
+      ssp_di = 'h02;
+      ssp_en = 1'b1;
+      c1.set_SSP_RA(`USR);
+      c1.set_SSP_DI(ssp_di);
+      c1.set_SSP_WnR(`WRITE);
+      c1.set_SSP_SSEL(ssp_ssel);
+      c1.set_SSP_EOC(ssp_eoc);
+      drive_transaction(c1);
+
+      // wait for USR[0] to toggle to clear iTFE/iTHE
+      
+      @(posedge ssp_uart_vif.usr_0);
+
+      c1.set_SSP_En(ssp_en);
+      drive_transaction(c1); 
+       
+      repeat(256) begin
+        @(negedge ssp_uart_vif.Clk_sig);
+      end
+  endtask: clearFifoInterrupts
+
   function checkExpectedValue(logic [11:0] expected, logic [11:0] actual);
     if(actual !== expected) begin // using != instead of !== results in true
 	$display("ERROR @ time %0t: Data read was incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
@@ -106,29 +134,6 @@ class TFIFO_base extends test_base;
         @(negedge ssp_uart_vif.Clk_sig);
       end
   endtask: enableInterrupt
-
-
-  task clearFifoInterrupts;
-      c1 = new(ssp_uart_vif);
-      ssp_di = 'h02;
-      ssp_en = 1'b1;
-      c1.set_SSP_RA(`USR);
-      c1.set_SSP_DI(ssp_di);
-      c1.set_SSP_WnR(`WRITE);
-      c1.set_SSP_SSEL(ssp_ssel);
-      c1.set_SSP_EOC(ssp_eoc);
-      drive_transaction(c1);
-
-      // wait for USR[0] to toggle to clear iTFE/iTHE
-      @(posedge ssp_uart_vif.usr_0);
-
-      c1.set_SSP_En(ssp_en);
-      drive_transaction(c1); 
-       
-      repeat(256) begin
-        @(negedge ssp_uart_vif.Clk_sig);
-      end
-  endtask: clearFifoInterrupts
 
 
   task populateTFIFO(int numTransactions);
@@ -195,29 +200,6 @@ class RFIFO_base extends test_base;
     function new(virtual ssp_uart_if ssp_uart_vif);
       super.new(ssp_uart_vif);
     endfunction: new
-
-  task clearFifoInterrupts;
-      c1 = new(ssp_uart_vif);
-      ssp_di = 'h02;
-      ssp_en = 1'b1;
-      c1.set_SSP_RA(`USR);
-      c1.set_SSP_DI(ssp_di);
-      c1.set_SSP_WnR(`WRITE);
-      c1.set_SSP_SSEL(ssp_ssel);
-      c1.set_SSP_EOC(ssp_eoc);
-      drive_transaction(c1);
-
-      // wait for USR[0] to toggle to clear iTFE/iTHE
-      @(posedge ssp_uart_vif.usr_0);
-
-      c1.set_SSP_En(ssp_en);
-      drive_transaction(c1); 
-       
-      repeat(256) begin
-        @(negedge ssp_uart_vif.Clk_sig);
-      end
-  endtask: clearFifoInterrupts
-
 
   task enableInterrupt;
       //enable interrupt
@@ -447,7 +429,7 @@ class tfifo_clear extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
 
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
 
       populateTFIFO(6);
       
@@ -481,7 +463,7 @@ class the_interrupt extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
 
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
       enableInterrupt();
 
       populateTFIFO(9);
@@ -519,7 +501,7 @@ class tfe_interrupt extends TFIFO_base;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
  
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
 
       enableInterrupt();
 
@@ -558,7 +540,7 @@ class transmitFifoStatus extends TFIFO_base;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
  
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
 
       this.randomize();
       populateTFIFO(numTransactions);
@@ -597,11 +579,10 @@ class rfifo_clear extends RFIFO_base;
     endfunction: new
 
     task run();
-      ssp_uart_reset();
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
 
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
      
       populateRFIFO(2);
       assert(ssp_uart_vif.rcnt > 0) $info("FIFO has data! rcnt = %0h", ssp_uart_vif.rcnt); else $error("Receive FIFO was not populated! rcnt = %0h", ssp_uart_vif.rcnt);
@@ -623,11 +604,10 @@ class rhf_interrupt extends RFIFO_base;
     endfunction: new
 
     task run();
-      ssp_uart_reset();
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
       
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
       enableInterrupt();
       populateRFIFO(8);
   
@@ -659,7 +639,7 @@ class interrupt_disable extends TFIFO_base;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
  
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
 
       populateTFIFO(3);
      
@@ -691,7 +671,7 @@ class receiveFifoStatus extends RFIFO_base;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
  
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
 
       this.randomize();
       populateRFIFO(numTransactions);
@@ -721,7 +701,7 @@ class createTimeOut extends RFIFO_base;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
  
-      clearFifoInterrupts();
+      //clearFifoInterrupts();
       enableInterrupt();
       createTimeOut();
       
