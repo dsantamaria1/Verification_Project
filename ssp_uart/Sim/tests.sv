@@ -102,9 +102,9 @@ class test_base;
       end
   endtask: clearFifoInterrupts
 
-  function checkExpectedValue(logic [11:0] expected, logic [11:0] actual);
+  function checkExpectedValue(logic [11:0] expected, logic [11:0] actual, logic [2:0] addr);
     if(actual !== expected) begin // using != instead of !== results in true
-	$display("ERROR @ time %0t: Data read was incorrect. Expected = %0h, Actual = %0h", $time, expected, actual);
+	$display("ERROR @ time %0t: Data read was incorrect. Expected = %0h, Actual = %0h for address = %0h", $time, expected, actual, addr);
     end
     else begin
 	$display("SUCCESS!: Data read was correct. Expected = %0h, Actual = %0h", expected, actual);
@@ -343,7 +343,7 @@ class uart_reg_rw extends test_base;
     endfunction: new
     
     task run();
-      ssp_di = 'hDED;
+      ssp_di = 'h2ED;
       ssp_eoc = 1'b1;
       ssp_ssel = 1'b1;
       ssp_en = 1'b1;
@@ -367,7 +367,7 @@ class uart_reg_rw extends test_base;
       ssp_do = c1.get_SSP_DO();
       c1.set_SSP_WnR(`READ);
 
-      checkExpectedValue(ssp_di, ssp_do);
+      checkExpectedValue(ssp_di, ssp_do, `UCR);
       #100; 
     endtask
 
@@ -381,36 +381,46 @@ class uart_reg_init extends test_base;
     endfunction: new
 
     task run();
-
+      ssp_uart_reset();
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`UCR);
       c1.set_SSP_WnR(`READ);
       ssp_do = c1.get_SSP_DO();
-      checkExpectedValue(`UCR_RST, ssp_do);
+      drive_transaction(c1);
+      waitN_ClkCycles(5);
+      checkExpectedValue(`UCR_RST, ssp_do, `UCR);
 
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`USR);
       c1.set_SSP_WnR(`READ);
       ssp_do = c1.get_SSP_DO();
-      checkExpectedValue(`USR_RST, ssp_do);
+      drive_transaction(c1);
+      waitN_ClkCycles(5);
+      checkExpectedValue(`USR_RST, ssp_do, `USR);
       
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`TDR);
       c1.set_SSP_WnR(`READ);
       ssp_do = c1.get_SSP_DO();
-      checkExpectedValue(`TDR_RST, ssp_do);
+      drive_transaction(c1);
+      waitN_ClkCycles(5);
+      checkExpectedValue(`TDR_RST, ssp_do, `TDR);
       
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`RDR);
       c1.set_SSP_WnR(`READ);
       ssp_do = c1.get_SSP_DO();
-      checkExpectedValue(`RDR_RST, ssp_do);
+      drive_transaction(c1);
+      waitN_ClkCycles(5);
+      checkExpectedValue(`RDR_RST, ssp_do, `RDR);
       
       c1 = new(ssp_uart_vif);
       c1.set_SSP_RA(`SPR);
       c1.set_SSP_WnR(`READ);
       ssp_do = c1.get_SSP_DO();
-      checkExpectedValue(`SPR_RST, ssp_do);
+      drive_transaction(c1);
+      waitN_ClkCycles(5);
+      checkExpectedValue(`SPR_RST, ssp_do, `SPR);
    
       #100; 
     endtask: run
