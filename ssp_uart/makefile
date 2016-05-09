@@ -1,5 +1,5 @@
-#/simv +test=4 -cm_dir name
-#urg -dbname merge/sspUart -dir tfifoClear.vdb/ rfifoClear.vdb/
+#./simv +test=4 -cm_dir name
+#urg -dbname merge -dir ./*
 FLAGS=-debug_all -sverilog -ntb -F
 FLAGS2=-debug_all -sverilog -R -gui -Mupdate -F
 MEM_FLAGS=+memcbk +v2k
